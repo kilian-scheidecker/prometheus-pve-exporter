@@ -33,7 +33,7 @@ class PveExporterApplication:
         Request handler for /pve route
         """
         # Use CLI-provided host if set, otherwise use the target from the URL
-        host = self._proxmox_host if self._proxmox_host else target
+        host = self._config[module].get('host', 'localhost')
 
         if module in self._config:
             start = time.time()

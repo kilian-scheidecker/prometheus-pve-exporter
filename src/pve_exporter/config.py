@@ -4,7 +4,17 @@ Config module for Proxmox VE prometheus collector.
 
 from collections.abc import Mapping
 
-def config_from_yaml(yaml):
+def config_from_env(env):
+    """
+    Given os.environ dictionary return a config object.
+    """
+    envmap = {
+        'PVE_USER': 'user',
+        'PVE_PASSWORD': 'password',
+        'PVE_TOKEN_NAME': 'token_name',
+        'PVE_TOKEN_VALUE': 'token_value',
+        'PVE_HOST': 'host',
+    }
     """
     Given a dictionary parsed from a yaml file return a config object.
     """
