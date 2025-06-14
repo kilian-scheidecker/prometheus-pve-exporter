@@ -64,6 +64,11 @@ def main():
                         help='SSL key for server')
     parser.add_argument('--server.certfile', dest='server_certfile',
                         help='SSL certificate for server')
+    
+    # Add Proxmox host argument
+    parser.add_argument('--proxmox.host',
+                            dest="proxmox_host", default='localhost',
+                            help='Proxmox host IP address (overrides target in /pve endpoint)')
 
     params = parser.parse_args()
 
@@ -92,6 +97,6 @@ def main():
     }
 
     if config.valid:
-        start_http_server(config, gunicorn_options, collectors)
+        start_http_server(config, gunicorn_options, collectors, proxmox_host=params.proxmox_host)
     else:
         parser.error(str(config))

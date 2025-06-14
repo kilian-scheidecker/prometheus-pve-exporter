@@ -19,11 +19,12 @@ class PveExporterApplication:
     Proxmox VE prometheus collector HTTP handler.
     """
 
-    def __init__(self, config, duration, errors, collectors):
+    def __init__(self, config, duration, errors, collectors, proxmox_host):
         self._config = config
         self._duration = duration
         self._errors = errors
         self._collectors = collectors
+        self._proxmox_host = proxmox_host
 
         self._log = logging.getLogger(__name__)
 
@@ -31,12 +32,14 @@ class PveExporterApplication:
         """
         Request handler for /pve route
         """
+        # Use CLI-provided host if set, otherwise use the target from the URL
+        host = self._proxmox_host if self._proxmox_host else target
 
         if module in self._config:
             start = time.time()
             output = collect_pve(
                 self._config[module],
-                target,
+                host,
                 cluster.lower() not in ['false', '0', ''],
                 node.lower() not in ['false', '0', ''],
                 self._collectors
@@ -140,7 +143,7 @@ class StandaloneGunicornApplication(gunicorn.app.base.BaseApplication):
         return self.application
 
 
-def start_http_server(config, gunicorn_options, collectors):
+def start_http_server(config, gunicorn_options, collectors, proxmox_host):
     """
     Start a HTTP API server for Proxmox VE prometheus collector.
     """
@@ -163,5 +166,5 @@ def start_http_server(config, gunicorn_options, collectors):
         # pylint: disable=no-member
         duration.labels(module)
 
-    app = PveExporterApplication(config, duration, errors, collectors)
+    app = PveExporterApplication(config, duration, errors, collectors, proxmox_host)
     StandaloneGunicornApplication(app, gunicorn_options).run()
